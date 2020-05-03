@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_i2c.h"
@@ -14,7 +15,7 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
 #include "driverlib/i2c.h"
-#include "../OrbitOLED/OrbitOLEDInterface.h"
+#include "OrbitOLED/OrbitOLEDInterface.h"
 #include "utils/ustdlib.h"
 #include "acc.h"
 #include "i2c_driver.h"
@@ -47,6 +48,7 @@ typedef struct{
 static circBuf_t g_xBuffer;
 static circBuf_t g_yBuffer;
 static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample values)
+static int16_t stepCount = 0;
 
 /*******************************************
  *      Local prototypes
@@ -106,20 +108,6 @@ initDisplay (void)
 }
 
 void
-UpdateDisplayText(char *str1, char *str2, int16_t num1, int16_t num2, uint8_t charLine, char sign)
-{
-    char text_buffer[17];           //Display fits 16 characters wide.
-
-    // "Undraw" the previous contents of the line to be updated.
-        OLEDStringDraw ("                ", 0, charLine);
-        // Form a new string for the line.  The maximum width specified for the
-        //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "%s %s    %c%d.%d", str1, str2, sign, num1, num2);
-        // Update line on display.
-        OLEDStringDraw (text_buffer, 0, charLine);
-}
-
-void
 displayUpdate (char *str1, char *str2, int16_t num, uint8_t charLine)
 {
     char text_buffer[17];           //Display fits 16 characters wide.
@@ -133,41 +121,6 @@ displayUpdate (char *str1, char *str2, int16_t num, uint8_t charLine)
     OLEDStringDraw (text_buffer, 0, charLine);
 }
 
-//*****************************************************************************
-// Function to display a changing message on the display.
-// The display has 4 rows of 16 characters, with 0, 0 at top left.
-//*****************************************************************************
-void
-displayUpdateFloat (char *str1, char *str2, int16_t num, uint8_t charLine)
-{
-    //char text_buffer[17];           //Display fits 16 characters wide.
-
-    int16_t num1 = num /1000;
-    int16_t num2 = num % 1000;
-    if ((num1 < 0) && (num2 < 0))
-    {
-        num2 *= -1;
-        num1 *= -1;
-        UpdateDisplayText(str1, str2, num1, num2, charLine, '-');
-    }
-    else if (num2 < 0)
-    {
-        num2 *= -1;
-        UpdateDisplayText(str1, str2, num1, num2, charLine, '-');
-    }
-    else
-    {
-        UpdateDisplayText(str1, str2, num1, num2, charLine, ' ');
-    }
-
-    // "Undraw" the previous contents of the line to be updated.
-    /*OLEDStringDraw ("                ", 0, charLine);
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3d.%3d", str1, str2, num1, num2);
-    // Update line on display.
-    OLEDStringDraw (text_buffer, 0, charLine);*/
-}
 
 /*********************************************************
  * initAccl
@@ -254,28 +207,12 @@ getAcclData (void)
 }
 
 vector3_t
-convertAcceleration (vector3_t acceleration_raw, int16_t unitsType)
+convertAcceleration (vector3_t acceleration_raw)
 {
-
-    switch (unitsType)
-    {
-    case (ACCELERATION_GS):
-        OLEDStringDraw ("GS ", 0, 0);
-        acceleration_raw.x = (acceleration_raw.x * 1000) / 256;
-        acceleration_raw.y = (acceleration_raw.y * 1000) / 256;
-        acceleration_raw.z = (acceleration_raw.z * 1000) / 256;
-        break;
-    case (ACCELERATION_MS2):
-        OLEDStringDraw ("MS2", 0, 0);
-        acceleration_raw.x = (acceleration_raw.x * 9810) / 256;
-        acceleration_raw.y = (acceleration_raw.y * 9810) / 256;
-        acceleration_raw.z = (acceleration_raw.z * 9810) / 256;
-        break;
-    default:
-        OLEDStringDraw ("RAW", 0, 0);
-        break;
-    }
-
+    OLEDStringDraw ("GS ", 0, 0);
+    acceleration_raw.x = (acceleration_raw.x * 1000) / 256;
+    acceleration_raw.y = (acceleration_raw.y * 1000) / 256;
+    acceleration_raw.z = (acceleration_raw.z * 1000) / 256;
 
     return acceleration_raw;
 }
@@ -283,7 +220,7 @@ convertAcceleration (vector3_t acceleration_raw, int16_t unitsType)
 
 void updateAcceleration (int16_t unitsType, vector3_t acceleration_raw) {
 
-    acceleration_raw = convertAcceleration(acceleration_raw, unitsType);
+    acceleration_raw = convertAcceleration(acceleration_raw);
 
     displayUpdate ("Accl", "X", acceleration_raw.x, 1);
     displayUpdate ("Accl", "Y", acceleration_raw.y, 2);
@@ -313,6 +250,23 @@ vector3_t getMeanAccel() {
     return meanVec;
 }
 
+uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
+    uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
+    if (stepFlag == 0) {
+        //If it is above 1.5 then set to 1 and add 1 step
+        if (norm >= 150) {
+            stepCount += 1;
+            stepFlag = 1;
+        }
+    } else {
+        //If it is now below 1.5 then set flag to 0
+        if (norm < 150) {
+            stepFlag = 0;
+        }
+    }
+    return stepFlag;
+}
+
 /********************************************************
  * main
  ********************************************************/
@@ -331,49 +285,32 @@ main (void)
     // Enable interrupts to the processor.
     IntMasterEnable();
 
-
     vector3_t offSet = getAcclData();
     vector3_t acceleration_raw;
+    vector3_t acceleration_gs;
     int16_t unitsType = ACCELERATION_RAW;
+    int16_t stepFlag = 0;
 
     while (1)
     {
         SysCtlDelay (SysCtlClockGet () / 100);
 
-        uint8_t butState;
-
-        updateButtons ();       // Poll the buttons
-        // check state of each button and display if a change is detected
-        butState = checkButton(DOWN);
-        switch (butState)
-        {
-        case PUSHED:
-            offSet = getMeanAccel();
-            break;
-        case RELEASED:
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
-
-        butState = checkButton(UP);
-        switch (butState)
-        {
-        case PUSHED:
-            unitsType = (++unitsType % 3);
-            break;
-        case RELEASED:
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
+        uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
 
         acceleration_raw = getMeanAccel();
-
         acceleration_raw.x -= offSet.x;
         acceleration_raw.y -= offSet.y;
         acceleration_raw.z -= offSet.z;
+        acceleration_gs = convertAcceleration(acceleration_raw);
+        stepFlag = countSteps(stepFlag, acceleration_gs);
+        displayUpdate("Step", "Count", stepCount, 0);
+        displayUpdate("Norm", "wang", norm, 1);
+
+
+
 
         // Calculate and display the rounded mean of the buffer contents
-        updateAcceleration(unitsType, acceleration_raw);
+        //updateAcceleration(unitsType, acceleration_raw);
 
     }
 }
