@@ -22,6 +22,7 @@
 #include "buttons4.h"
 #include "driverlib/interrupt.h"
 #include "circBufT.h"
+#include "updateDisplay.h"
 
 typedef struct{
     int16_t x;
@@ -48,7 +49,8 @@ typedef struct{
 static circBuf_t g_xBuffer;
 static circBuf_t g_yBuffer;
 static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample values)
-static int16_t stepCount = 0;
+static int16_t stepCount = -1;
+static int16_t distanceCount = 0;
 
 /*******************************************
  *      Local prototypes
@@ -250,12 +252,17 @@ vector3_t getMeanAccel() {
     return meanVec;
 }
 
+int16_t getDistance(int16_t stepCount) {
+    return stepCount * 90;
+}
+
 uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
     if (stepFlag == 0) {
         //If it is above 1.5 then set to 1 and add 1 step
         if (norm >= 150) {
             stepCount += 1;
+            distanceCount = getDistance(stepCount);
             stepFlag = 1;
         }
     } else {
@@ -267,12 +274,21 @@ uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     return stepFlag;
 }
 
+void resetDistance(void){
+    distanceCount = 0;
+}
+
+void resetSteps(void){
+    stepCount = 0;
+}
+
 /********************************************************
  * main
  ********************************************************/
 int
 main (void)
 {
+    uint8_t butState;
 
     initClock ();
     initAccl ();
@@ -285,29 +301,69 @@ main (void)
     // Enable interrupts to the processor.
     IntMasterEnable();
 
-    vector3_t offSet = getAcclData();
+
     vector3_t acceleration_raw;
     vector3_t acceleration_gs;
     int16_t unitsType = ACCELERATION_RAW;
     int16_t stepFlag = 0;
-
+    int16_t distance = 0;
+    vector3_t offSet = getAcclData();
+    uint16_t norm;
     while (1)
     {
         SysCtlDelay (SysCtlClockGet () / 100);
-
-        uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
-
         acceleration_raw = getMeanAccel();
         acceleration_raw.x -= offSet.x;
         acceleration_raw.y -= offSet.y;
         acceleration_raw.z -= offSet.z;
+
         acceleration_gs = convertAcceleration(acceleration_raw);
         stepFlag = countSteps(stepFlag, acceleration_gs);
-        displayUpdate("Step", "Count", stepCount, 0);
-        displayUpdate("Norm", "wang", norm, 1);
+        distance = getDistance(stepCount);
+        norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
+
+        // check state of each button and display if a change is detected
+        updateButtons ();
+
+        butState = checkButton (LEFT);
+        switch (butState)
+        {
+        case PUSHED:
+            leftOrRightButtonPressed();
+            break;
+        case RELEASED:
+            break;
+        // Do nothing if state is NO_CHANGE
+        }
+
+        butState = checkButton (RIGHT);
+        switch (butState)
+        {
+        case PUSHED:
+            leftOrRightButtonPressed();
+            break;
+        case RELEASED:
+            break;
+        // Do nothing if state is NO_CHANGE
+        }
+
+        butState = checkButton (UP);
+        switch (butState)
+        {
+        case PUSHED:
+            upButtonPressed();
+            break;
+        case RELEASED:
+            break;
+        // Do nothing if state is NO_CHANGE
+        }
 
 
 
+        /*displayUpdate("Step", "Count", stepCount, 0);
+        displayUpdate("Norm", "Value", norm, 1);
+        displayUpdate("Distance", "CM", distance, 2);*/
+        displayUpdateNEW(stepCount, distanceCount);
 
         // Calculate and display the rounded mean of the buffer contents
         //updateAcceleration(unitsType, acceleration_raw);
