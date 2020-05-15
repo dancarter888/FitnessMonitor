@@ -50,7 +50,6 @@ static circBuf_t g_xBuffer;
 static circBuf_t g_yBuffer;
 static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample values)
 static int16_t stepCount = -1;
-static int16_t distanceCount = 0;
 
 /*******************************************
  *      Local prototypes
@@ -252,7 +251,7 @@ vector3_t getMeanAccel() {
     return meanVec;
 }
 
-int16_t getDistance(int16_t stepCount) {
+uint16_t getDistance(void) {
     return stepCount * 90;
 }
 
@@ -262,7 +261,6 @@ uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
         //If it is above 1.5 then set to 1 and add 1 step
         if (norm >= 150) {
             stepCount += 1;
-            distanceCount = getDistance(stepCount);
             stepFlag = 1;
         }
     } else {
@@ -274,12 +272,16 @@ uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     return stepFlag;
 }
 
-void resetDistance(void){
-    distanceCount = 0;
-}
-
 void resetSteps(void){
     stepCount = 0;
+}
+
+void incrementSteps(void) {
+    stepCount += 100;
+}
+
+void decrementSteps(void) {
+    stepCount = ((stepCount - 500) < 0) ? 0 : (stepCount - 500);
 }
 
 /********************************************************
@@ -306,7 +308,7 @@ main (void)
     vector3_t acceleration_gs;
     int16_t unitsType = ACCELERATION_RAW;
     int16_t stepFlag = 0;
-    int16_t distance = 0;
+    uint16_t distance = 0;
     vector3_t offSet = getAcclData();
     uint16_t norm;
     while (1)
@@ -319,7 +321,7 @@ main (void)
 
         acceleration_gs = convertAcceleration(acceleration_raw);
         stepFlag = countSteps(stepFlag, acceleration_gs);
-        distance = getDistance(stepCount);
+        distance = getDistance();
         norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
 
         // check state of each button and display if a change is detected
@@ -358,12 +360,23 @@ main (void)
         // Do nothing if state is NO_CHANGE
         }
 
+        butState = checkButton (DOWN);
+        switch (butState)
+        {
+        case PUSHED:
+            downButtonLongPressed();
+            break;
+        case RELEASED:
+            break;
+        // Do nothing if state is NO_CHANGE
+        }
+
 
 
         /*displayUpdate("Step", "Count", stepCount, 0);
         displayUpdate("Norm", "Value", norm, 1);
         displayUpdate("Distance", "CM", distance, 2);*/
-        displayUpdateNEW(stepCount, distanceCount);
+        displayUpdateNEW(stepCount, distance);
 
         // Calculate and display the rounded mean of the buffer contents
         //updateAcceleration(unitsType, acceleration_raw);

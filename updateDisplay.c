@@ -33,14 +33,20 @@
 
 static int displayState = STEP_STATE;
 int unitState = KILOMETRES;
+int systemState = NORMAL_STATE;
+
 
 void upButtonPressed(void) {
-    if (displayState == DISTANCE_STATE) {
-        if (unitState == KILOMETRES) {
-            unitState = MILES;
-        } else {
-            unitState = KILOMETRES;
+    if (systemState == NORMAL_STATE) {
+        if (displayState == DISTANCE_STATE) {
+            if (unitState == KILOMETRES) {
+                unitState = MILES;
+            } else {
+                unitState = KILOMETRES;
+            }
         }
+    } else if (systemState == DEBUG_STATE) {
+        incrementSteps();
     }
 }
 
@@ -48,10 +54,10 @@ void upButtonPressed(void) {
 //void downButtonPressed(void) {}
 
 void downButtonLongPressed(void) {
-    if (displayState == DISTANCE_STATE) {
-        resetDistance();
-    } else {
+    if (systemState == NORMAL_STATE) {
         resetSteps();
+    } else if (systemState == DEBUG_STATE) {
+        decrementSteps();
     }
 }
 
@@ -64,15 +70,15 @@ void leftOrRightButtonPressed(void) {
     }
 }
 
-int16_t convertDistance(int16_t distanceCount) {
+uint16_t convertDistance(uint16_t distance) {
     if (unitState == MILES) {
-        distanceCount = distanceCount * 0.393;
+        distance = distance * 0.621;
     }
 
-    return distanceCount;
+    return distance;
 }
 
-void displayUpdateNEW (int16_t stepCount, int16_t distanceCount)
+void displayUpdateNEW (int16_t stepCount, uint16_t distance)
 {
     if (displayState == STEP_STATE) {
         char text_buffer[17];           //Display fits 16 characters wide.
@@ -81,20 +87,36 @@ void displayUpdateNEW (int16_t stepCount, int16_t distanceCount)
         OLEDStringDraw ("                ", 0, 0);
         // Form a new string for the line.  The maximum width specified for the
         //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "STEPS: %3d", stepCount);
+        usnprintf(text_buffer, sizeof(text_buffer), "STEPS:");
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 0);
-    } else if (displayState == DISTANCE_STATE) {
-        int16_t convertedDistanceCount = convertDistance(distanceCount);
-        char text_buffer[17];           //Display fits 16 characters wide.
 
+        // "Undraw" the previous contents of the line to be updated.
+       OLEDStringDraw ("                ", 0, 2);
+       // Form a new string for the line.  The maximum width specified for the
+       //  number field ensures it is displayed right justified.
+       usnprintf(text_buffer, sizeof(text_buffer), "%d", stepCount);
+       // Update line on display.
+       OLEDStringDraw (text_buffer, 0, 2);
+
+    } else if (displayState == DISTANCE_STATE) {
+        uint16_t convertedDistance = convertDistance(distance);
+        char text_buffer[17];           //Display fits 16 characters wide.
         // "Undraw" the previous contents of the line to be updated.
         OLEDStringDraw ("                ", 0, 0);
         // Form a new string for the line.  The maximum width specified for the
         //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "DISTANCE: %3d", convertedDistanceCount);
+        usnprintf(text_buffer, sizeof(text_buffer), "DISTANCE:");
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 0);
+
+        // "Undraw" the previous contents of the line to be updated.
+        OLEDStringDraw ("                ", 0, 2);
+        // Form a new string for the line.  The maximum width specified for the
+        //  number field ensures it is displayed right justified.
+        usnprintf(text_buffer, sizeof(text_buffer), "%d", convertedDistance);
+        // Update line on display.
+        OLEDStringDraw (text_buffer, 0, 2);
     }
 
 }
