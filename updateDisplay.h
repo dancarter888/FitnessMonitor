@@ -25,6 +25,10 @@ void downButtonLongPressed(void);
 
 void leftOrRightButtonPressed(void);
 
+void incrementLongPresses(void);
+
+void resetLongPresses(void);
+
 void displayUpdateNEW (int16_t stepCount, int16_t distanceCount);
 
 #endif /* UPDATEDISPLAY_H_ */

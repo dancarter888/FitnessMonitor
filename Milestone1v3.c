@@ -367,8 +367,10 @@ main (void)
             downButtonLongPressed();
             break;
         case RELEASED:
+            resetLongPresses();
             break;
-        // Do nothing if state is NO_CHANGE
+        default:
+            incrementLongPresses();
         }
 
 

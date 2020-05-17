@@ -30,10 +30,12 @@
 #define DEBUG_STATE 1
 #define KILOMETRES 0
 #define MILES 1
+#define LONG_PRESS_THRESHOLD 30
 
 static int displayState = STEP_STATE;
 int unitState = KILOMETRES;
-int systemState = NORMAL_STATE;
+int systemState = DEBUG_STATE;
+int longPresses = 0;
 
 
 void upButtonPressed(void) {
@@ -51,13 +53,46 @@ void upButtonPressed(void) {
 }
 
 
-//void downButtonPressed(void) {}
-
+/**
+ * This will be called when the down button is pressed.
+ * If it is normal state it will start the process of checking
+ * for a long push by incrementing longPresses to be > 0.
+ * If in debug then decrement steps.
+ */
 void downButtonLongPressed(void) {
     if (systemState == NORMAL_STATE) {
-        resetSteps();
+        longPresses++;
     } else if (systemState == DEBUG_STATE) {
         decrementSteps();
+    }
+}
+
+
+/**
+ * If there is no change in the button state and the
+ * long press down has been initialized then increment
+ * increment longPresses. This will be incremented every
+ * loop. If it is greater than the threshold count it as a
+ * long push and reset the sets.
+ */
+void incrementLongPresses(void) {
+    if (systemState == NORMAL_STATE) {
+        if (longPresses > 0) {
+            longPresses++;
+            if (longPresses > LONG_PRESS_THRESHOLD) {
+                resetSteps();
+            }
+        }
+    }
+}
+
+
+/**
+ * This will be called if the down button is released
+ */
+void resetLongPresses(void) {
+    if (systemState == NORMAL_STATE) {
+        longPresses = 0;
     }
 }
 
@@ -100,7 +135,16 @@ void displayUpdateNEW (int16_t stepCount, uint16_t distance)
        OLEDStringDraw (text_buffer, 0, 2);
 
     } else if (displayState == DISTANCE_STATE) {
-        uint16_t convertedDistance = convertDistance(distance);
+        //uint16_t convertedDistance = convertDistance(distance);
+
+        // Calculate each digit to repr the number of kms
+        uint16_t distMetres = distance / 100;
+        uint16_t kms = distMetres / 1000;
+        uint16_t y = distMetres % 1000;
+        uint16_t hundreds = y / 100;
+        uint16_t tens = (y % 100) / 10;
+        uint16_t ones = y % 10;
+
         char text_buffer[17];           //Display fits 16 characters wide.
         // "Undraw" the previous contents of the line to be updated.
         OLEDStringDraw ("                ", 0, 0);
@@ -114,9 +158,17 @@ void displayUpdateNEW (int16_t stepCount, uint16_t distance)
         OLEDStringDraw ("                ", 0, 2);
         // Form a new string for the line.  The maximum width specified for the
         //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "%d", convertedDistance);
+        usnprintf(text_buffer, sizeof(text_buffer), "%d.%d%d%d kilometres", kms, hundreds, tens, ones);
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 2);
+
+        /*// "Undraw" the previous contents of the line to be updated.
+        OLEDStringDraw ("                ", 0, 3);
+        // Form a new string for the line.  The maximum width specified for the
+        //  number field ensures it is displayed right justified.
+        usnprintf(text_buffer, sizeof(text_buffer), "Dist: %d", distance);
+        // Update line on display.
+        OLEDStringDraw (text_buffer, 0, 3);*/
     }
 
 }
