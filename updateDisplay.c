@@ -139,8 +139,8 @@ void displayUpdateNEW (int16_t stepCount, uint16_t distance)
 
         // Calculate each digit to repr the number of kms
         uint16_t distMetres = distance / 100;
+        uint16_t kms = distMetres / 1000;
         uint16_t y = distMetres % 1000;
-        uint16_t kms = distMetres - y;
         uint16_t hundreds = y / 100;
         uint16_t tens = (y % 100) / 10;
         uint16_t ones = y % 10;
