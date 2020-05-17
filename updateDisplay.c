@@ -34,7 +34,7 @@
 
 static int displayState = STEP_STATE;
 int unitState = KILOMETRES;
-int systemState = DEBUG_STATE;
+int systemState = NORMAL_STATE;
 int longPresses = 0;
 
 
@@ -105,15 +105,11 @@ void leftOrRightButtonPressed(void) {
     }
 }
 
-uint16_t convertDistance(uint16_t distance) {
-    if (unitState == MILES) {
-        distance = distance * 0.621;
-    }
-
-    return distance;
+uint32_t convertDistance(uint32_t distance) {
+    return distance * 0.621;
 }
 
-void displayUpdateNEW (int16_t stepCount, uint16_t distance)
+void displayUpdateNEW (int16_t stepCount, uint32_t distance)
 {
     if (displayState == STEP_STATE) {
         char text_buffer[17];           //Display fits 16 characters wide.
@@ -135,11 +131,14 @@ void displayUpdateNEW (int16_t stepCount, uint16_t distance)
        OLEDStringDraw (text_buffer, 0, 2);
 
     } else if (displayState == DISTANCE_STATE) {
-        //uint16_t convertedDistance = convertDistance(distance);
+        if (unitState == MILES) {
+            distance = convertDistance(distance);
+        }
+
 
         // Calculate each digit to repr the number of kms
-        uint16_t distMetres = distance / 100;
-        uint16_t kms = distMetres / 1000;
+        uint32_t distMetres = distance / 100;
+        uint16_t thousands = distMetres / 1000;
         uint16_t y = distMetres % 1000;
         uint16_t hundreds = y / 100;
         uint16_t tens = (y % 100) / 10;
@@ -158,7 +157,13 @@ void displayUpdateNEW (int16_t stepCount, uint16_t distance)
         OLEDStringDraw ("                ", 0, 2);
         // Form a new string for the line.  The maximum width specified for the
         //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "%d.%d%d%d kilometres", kms, hundreds, tens, ones);
+        char* unitName = "kilometres";
+
+        if (unitState == MILES) {
+            unitName = "miles";
+        }
+
+        usnprintf(text_buffer, sizeof(text_buffer), "%d.%d%d%d %s", thousands, hundreds, tens, ones, unitName);
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 2);
 

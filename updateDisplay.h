@@ -29,6 +29,6 @@ void incrementLongPresses(void);
 
 void resetLongPresses(void);
 
-void displayUpdateNEW (int16_t stepCount, int16_t distanceCount);
+void displayUpdateNEW (int16_t stepCount, int32_t distance);
 
 #endif /* UPDATEDISPLAY_H_ */

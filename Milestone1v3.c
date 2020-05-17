@@ -50,6 +50,7 @@ static circBuf_t g_xBuffer;
 static circBuf_t g_yBuffer;
 static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample values)
 static int16_t stepCount = -1;
+static int32_t distance = 0;
 
 /*******************************************
  *      Local prototypes
@@ -251,10 +252,6 @@ vector3_t getMeanAccel() {
     return meanVec;
 }
 
-uint16_t getDistance(void) {
-    return stepCount * 90;
-}
-
 uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
     if (stepFlag == 0) {
@@ -308,7 +305,6 @@ main (void)
     vector3_t acceleration_gs;
     int16_t unitsType = ACCELERATION_RAW;
     int16_t stepFlag = 0;
-    uint16_t distance = 0;
     vector3_t offSet = getAcclData();
     uint16_t norm;
     while (1)
@@ -321,7 +317,7 @@ main (void)
 
         acceleration_gs = convertAcceleration(acceleration_raw);
         stepFlag = countSteps(stepFlag, acceleration_gs);
-        distance = getDistance();
+        distance = stepCount * 90;
         norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
 
         // check state of each button and display if a change is detected
