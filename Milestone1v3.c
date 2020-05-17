@@ -288,6 +288,7 @@ int
 main (void)
 {
     uint8_t butState;
+    uint8_t switchState;
 
     initClock ();
     initAccl ();
@@ -367,6 +368,17 @@ main (void)
             break;
         default:
             incrementLongPresses();
+        }
+
+        switchState = checkSwitch();
+        switch (switchState)
+        {
+        case PUSHED:
+            switchSwitched(true);
+            break;
+        case RELEASED:
+            switchSwitched(false);
+            break;
         }
 
 

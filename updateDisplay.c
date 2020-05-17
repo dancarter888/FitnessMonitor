@@ -180,4 +180,10 @@ void displayUpdateNEW (int16_t stepCount, uint32_t distance)
 
 
 
-//void switchSwitched(void) {}
+void switchSwitched(bool switch_state) {
+    if (switch_state == false) {
+        systemState = NORMAL_STATE;
+    } else {
+        systemState = DEBUG_STATE;
+    }
+}
