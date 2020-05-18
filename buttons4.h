@@ -43,6 +43,12 @@ enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
 #define RIGHT_BUT_PIN  GPIO_PIN_0
 #define RIGHT_BUT_NORMAL  true
 
+// SWITCH
+#define SWITCH_PERIPH  SYSCTL_PERIPH_GPIOA
+#define SWITCH_PORT_BASE  GPIO_PORTA_BASE
+#define SWITCH_PIN  GPIO_PIN_7
+#define SWITCH_NORMAL  false
+
 #define NUM_BUT_POLLS 3
 // Debounce algorithm: A state machine is associated with each button.
 // A state change occurs only after NUM_BUT_POLLS consecutive polls have
@@ -70,5 +76,10 @@ updateButtons (void);
 // enumeration butStates, excluding 'NUM_BUTS'. Safe under interrupt.
 uint8_t
 checkButton (uint8_t butName);
+
+uint8_t
+checkSwitch (void);
+
+
 
 #endif /*BUTTONS_H_*/
