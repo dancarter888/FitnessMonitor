@@ -29,7 +29,7 @@ void incrementLongPresses(void);
 
 void resetLongPresses(void);
 
-void displayUpdateNEW (int16_t stepCount, int32_t distance);
+void displayUpdate (int16_t stepCount, int32_t distance);
 
 void switchSwitched(bool switch_state);
 

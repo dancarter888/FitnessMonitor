@@ -57,7 +57,6 @@ static int32_t distance = 0;
  *******************************************/
 void initClock (void);
 void initDisplay (void);
-void displayUpdate (char *str1, char *str2, int16_t num, uint8_t charLine);
 void initAccl (void);
 vector3_t getAcclData (void);
 
@@ -108,21 +107,6 @@ initDisplay (void)
     // Initialise the Orbit OLED display
     OLEDInitialise ();
 }
-
-void
-displayUpdate (char *str1, char *str2, int16_t num, uint8_t charLine)
-{
-    char text_buffer[17];           //Display fits 16 characters wide.
-
-    // "Undraw" the previous contents of the line to be updated.
-    OLEDStringDraw ("                ", 0, charLine);
-    // Form a new string for the line.  The maximum width specified for the
-    //  number field ensures it is displayed right justified.
-    usnprintf(text_buffer, sizeof(text_buffer), "%s %s %3d", str1, str2, num);
-    // Update line on display.
-    OLEDStringDraw (text_buffer, 0, charLine);
-}
-
 
 /*********************************************************
  * initAccl
@@ -217,16 +201,6 @@ convertAcceleration (vector3_t acceleration_raw)
     acceleration_raw.z = (acceleration_raw.z * 1000) / 256;
 
     return acceleration_raw;
-}
-
-
-void updateAcceleration (int16_t unitsType, vector3_t acceleration_raw) {
-
-    acceleration_raw = convertAcceleration(acceleration_raw);
-
-    displayUpdate ("Accl", "X", acceleration_raw.x, 1);
-    displayUpdate ("Accl", "Y", acceleration_raw.y, 2);
-    displayUpdate ("Accl", "Z", acceleration_raw.z, 3);
 }
 
 vector3_t getMeanAccel() {
@@ -388,6 +362,6 @@ main (void)
 
         checkButtons();
 
-        displayUpdateNEW(stepCount, distance);
+        displayUpdate(stepCount, distance);
     }
 }

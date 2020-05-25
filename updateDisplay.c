@@ -109,7 +109,7 @@ uint32_t convertDistance(uint32_t distance) {
     return distance * 0.621;
 }
 
-void displayUpdateNEW (int16_t stepCount, uint32_t distance)
+void displayUpdate (int16_t stepCount, uint32_t distance)
 {
     if (displayState == STEP_STATE) {
         char text_buffer[17];           //Display fits 16 characters wide.
