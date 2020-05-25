@@ -266,6 +266,8 @@ uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
             stepFlag = 0;
         }
     }
+    distance = stepCount * 90;
+
     return stepFlag;
 }
 
@@ -281,15 +283,87 @@ void decrementSteps(void) {
     stepCount = ((stepCount - 500) < 0) ? 0 : (stepCount - 500);
 }
 
+void checkButtons(void)
+{
+    uint8_t butState;
+    uint8_t switchState;
+    butState = checkButton (LEFT);
+    switch (butState)
+    {
+    case PUSHED:
+        leftOrRightButtonPressed();
+        break;
+    case RELEASED:
+        break;
+    // Do nothing if state is NO_CHANGE
+    }
+
+    butState = checkButton (RIGHT);
+    switch (butState)
+    {
+    case PUSHED:
+        leftOrRightButtonPressed();
+        break;
+    case RELEASED:
+        break;
+    // Do nothing if state is NO_CHANGE
+    }
+
+    butState = checkButton (UP);
+    switch (butState)
+    {
+    case PUSHED:
+        upButtonPressed();
+        break;
+    case RELEASED:
+        break;
+    // Do nothing if state is NO_CHANGE
+    }
+
+    butState = checkButton (DOWN);
+    switch (butState)
+    {
+    case PUSHED:
+        downButtonLongPressed();
+        break;
+    case RELEASED:
+        resetLongPresses();
+        break;
+    default:
+        incrementLongPresses();
+    }
+
+    switchState = checkSwitch();
+    switch (switchState)
+    {
+    case PUSHED:
+        switchSwitched(true);
+        break;
+    case RELEASED:
+        switchSwitched(false);
+        break;
+    }
+}
+
+vector3_t calculateAcceleration(vector3_t offSet)
+{
+    vector3_t acceleration_raw;
+    vector3_t acceleration_gs;
+    acceleration_raw = getMeanAccel();
+    acceleration_raw.x -= offSet.x;
+    acceleration_raw.y -= offSet.y;
+    acceleration_raw.z -= offSet.z;
+
+    acceleration_gs = convertAcceleration(acceleration_raw);
+    return acceleration_gs;
+}
+
 /********************************************************
  * main
  ********************************************************/
 int
 main (void)
 {
-    uint8_t butState;
-    uint8_t switchState;
-
     initClock ();
     initAccl ();
     initDisplay ();
@@ -301,95 +375,19 @@ main (void)
     // Enable interrupts to the processor.
     IntMasterEnable();
 
-
-    vector3_t acceleration_raw;
     vector3_t acceleration_gs;
-    int16_t unitsType = ACCELERATION_RAW;
     int16_t stepFlag = 0;
     vector3_t offSet = getAcclData();
-    uint16_t norm;
     while (1)
     {
         SysCtlDelay (SysCtlClockGet () / 100);
-        acceleration_raw = getMeanAccel();
-        acceleration_raw.x -= offSet.x;
-        acceleration_raw.y -= offSet.y;
-        acceleration_raw.z -= offSet.z;
-
-        acceleration_gs = convertAcceleration(acceleration_raw);
+        acceleration_gs = calculateAcceleration(offSet);
         stepFlag = countSteps(stepFlag, acceleration_gs);
-        distance = stepCount * 90;
-        norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
-
         // check state of each button and display if a change is detected
         updateButtons ();
 
-        butState = checkButton (LEFT);
-        switch (butState)
-        {
-        case PUSHED:
-            leftOrRightButtonPressed();
-            break;
-        case RELEASED:
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
+        checkButtons();
 
-        butState = checkButton (RIGHT);
-        switch (butState)
-        {
-        case PUSHED:
-            leftOrRightButtonPressed();
-            break;
-        case RELEASED:
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
-
-        butState = checkButton (UP);
-        switch (butState)
-        {
-        case PUSHED:
-            upButtonPressed();
-            break;
-        case RELEASED:
-            break;
-        // Do nothing if state is NO_CHANGE
-        }
-
-        butState = checkButton (DOWN);
-        switch (butState)
-        {
-        case PUSHED:
-            downButtonLongPressed();
-            break;
-        case RELEASED:
-            resetLongPresses();
-            break;
-        default:
-            incrementLongPresses();
-        }
-
-        switchState = checkSwitch();
-        switch (switchState)
-        {
-        case PUSHED:
-            switchSwitched(true);
-            break;
-        case RELEASED:
-            switchSwitched(false);
-            break;
-        }
-
-
-
-        /*displayUpdate("Step", "Count", stepCount, 0);
-        displayUpdate("Norm", "Value", norm, 1);
-        displayUpdate("Distance", "CM", distance, 2);*/
         displayUpdateNEW(stepCount, distance);
-
-        // Calculate and display the rounded mean of the buffer contents
-        //updateAcceleration(unitsType, acceleration_raw);
-
     }
 }
