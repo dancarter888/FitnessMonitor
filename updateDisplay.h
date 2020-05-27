@@ -19,6 +19,8 @@
 #define KILOMETRES 0
 #define MILES 1
 
+void initDisplay (void);
+
 void upButtonPressed(void);
 
 void downButtonLongPressed(void);

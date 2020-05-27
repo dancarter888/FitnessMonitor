@@ -38,6 +38,16 @@ int systemState = NORMAL_STATE;
 int longPresses = 0;
 
 
+/*********************************************************
+ * initDisplay
+ *********************************************************/
+void
+initDisplay (void)
+{
+    // Initialise the Orbit OLED display
+    OLEDInitialise ();
+}
+
 void upButtonPressed(void) {
     if (systemState == NORMAL_STATE) {
         if (displayState == DISTANCE_STATE) {
