@@ -30,7 +30,7 @@ vector3_t getMeanAccel();
 
 vector3_t calculateAcceleration(vector3_t offSet);
 
-
+void initialiseBuffers(void);
 
 
 

@@ -114,3 +114,10 @@ vector3_t calculateAcceleration(vector3_t offSet)
     return acceleration_gs;
 }
 
+void
+initialiseBuffers(void)
+{
+    initCircBuf (&g_xBuffer, BUF_SIZE);
+    initCircBuf (&g_yBuffer, BUF_SIZE);
+    initCircBuf (&g_zBuffer, BUF_SIZE);
+}

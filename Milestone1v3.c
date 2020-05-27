@@ -47,9 +47,9 @@
 //*****************************************************************************
 // Global variables
 //*****************************************************************************
-static circBuf_t g_xBuffer;
+/*static circBuf_t g_xBuffer;
 static circBuf_t g_yBuffer;
-static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample values)
+static circBuf_t g_zBuffer;*/     // Buffer of size BUF_SIZE integers (sample values)
 static int16_t stepCount = -1;
 static int32_t distance = 0;
 
@@ -343,9 +343,9 @@ main (void)
     initAccl ();
     initDisplay ();
     initButtons ();
-    initCircBuf (&g_xBuffer, BUF_SIZE);
+    /*initCircBuf (&g_xBuffer, BUF_SIZE);
     initCircBuf (&g_yBuffer, BUF_SIZE);
-    initCircBuf (&g_zBuffer, BUF_SIZE);
+    initCircBuf (&g_zBuffer, BUF_SIZE);*/
 
     // Enable interrupts to the processor.
     IntMasterEnable();
