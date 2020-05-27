@@ -1,12 +1,12 @@
 /*
- * stepCounter.h
+ * acceleration.h
  *
  *  Created on: 27/05/2020
- *      Author: thexe
+ *      Author: Jakob, Daniel, Leo
  */
 
-#ifndef STEPCOUNTER_H_
-#define STEPCOUNTER_H_
+#ifndef ACCELERATION_H_
+#define ACCELERATION_H_
 
 #define BUF_SIZE 10
 
@@ -16,11 +16,9 @@ typedef struct{
     int16_t z;
 } vector3_t;
 
-/*extern circBuf_t g_xBuffer;
-extern circBuf_t g_yBuffer;
-extern circBuf_t g_zBuffer;*/
-
 void SysTickIntHandler(void);
+
+void initAccl (void);
 
 vector3_t getAcclData (void);
 
@@ -34,4 +32,4 @@ void initialiseBuffers(void);
 
 
 
-#endif /* STEPCOUNTER_H_ */
+#endif /* ACCELERATION_H_ */
