@@ -23,19 +23,20 @@
 #include "driverlib/interrupt.h"
 #include "circBufT.h"
 #include "updateDisplay.h"
+#include "stepCounter.h"
 
-typedef struct{
+/*typedef struct{
     int16_t x;
     int16_t y;
     int16_t z;
-} vector3_t;
+} vector3_t;*/
 
 /**********************************************************
  * Constants
  **********************************************************/
 // Systick configuration
 #define SYSTICK_RATE_HZ 10
-#define BUF_SIZE 10
+//#define BUF_SIZE 10
 #define SAMPLE_RATE_HZ 10
 
 // Unit conversion values
@@ -58,19 +59,19 @@ static int32_t distance = 0;
 void initClock (void);
 void initDisplay (void);
 void initAccl (void);
-vector3_t getAcclData (void);
+//vector3_t getAcclData (void);
 
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
 //*****************************************************************************
-void
+/*void
 SysTickIntHandler(void)
 {
     vector3_t currentVec = getAcclData();
     writeCircBuf(&g_xBuffer, currentVec.x);
     writeCircBuf(&g_yBuffer, currentVec.y);
     writeCircBuf(&g_zBuffer, currentVec.z);
-}
+}*/
 
 
 /***********************************************************
@@ -175,7 +176,7 @@ initAccl (void)
 /********************************************************
  * Function to read accelerometer
  ********************************************************/
-vector3_t
+/*vector3_t
 getAcclData (void)
 {
     char    fromAccl[] = {0, 0, 0, 0, 0, 0, 0}; // starting address, placeholders for data to be read.
@@ -224,7 +225,7 @@ vector3_t getMeanAccel() {
     meanVec.z = (2 * z_sum + BUF_SIZE) / 2 / BUF_SIZE;
 
     return meanVec;
-}
+}*/
 
 uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
@@ -319,7 +320,7 @@ void checkButtons(void)
     }
 }
 
-vector3_t calculateAcceleration(vector3_t offSet)
+/*vector3_t calculateAcceleration(vector3_t offSet)
 {
     vector3_t acceleration_raw;
     vector3_t acceleration_gs;
@@ -330,7 +331,7 @@ vector3_t calculateAcceleration(vector3_t offSet)
 
     acceleration_gs = convertAcceleration(acceleration_raw);
     return acceleration_gs;
-}
+}*/
 
 /********************************************************
  * main
