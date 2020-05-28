@@ -40,6 +40,9 @@ static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample valu
 
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
+// Makes a call to getAcclData() to get the acceleration data at the time of the
+// sysTick interrupt. It then writes the acceleration data to the circular 
+// buffer.
 //*****************************************************************************
 void
 SysTickIntHandler(void)
@@ -134,6 +137,10 @@ getAcclData (void)
     return acceleration;
 }
 
+/********************************************************
+ * convertAcceleration: Function to convert and return 
+ * the accelartion from raw to G's
+ ********************************************************/
 vector3_t
 convertAcceleration (vector3_t acceleration_raw)
 {
