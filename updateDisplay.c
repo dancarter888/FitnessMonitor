@@ -39,12 +39,11 @@ int longPresses = 0;
 
 
 /*********************************************************
- * initDisplay
+ * initDisplay: Initialise the Orbit OLED display
  *********************************************************/
 void
 initDisplay (void)
 {
-    // Initialise the Orbit OLED display
     OLEDInitialise ();
 }
 
@@ -106,7 +105,11 @@ void resetLongPresses(void) {
     }
 }
 
-
+/**
+ * Checks whether the displayState is currently step or distance state,
+ * and changes it to the inverse of its current state. This function is called
+ * when the left or right button has been pressed.
+ */
 void leftOrRightButtonPressed(void) {
     if (displayState == STEP_STATE) {
         displayState = DISTANCE_STATE;
@@ -115,10 +118,20 @@ void leftOrRightButtonPressed(void) {
     }
 }
 
+/**
+ * Converts the distance from kms to miles
+ */
 uint32_t convertDistance(uint32_t distance) {
     return distance * 0.621;
 }
 
+
+/**
+ * Displays the number of steps is the displayState == STEP_STATE,
+ * and displays the distance if displaystate == DISTANCE_STATE, 
+ * on the orbit OLED display.
+ * Displays distance in terms of kms and miles depending on the unitState.
+ */
 void displayUpdate (int16_t stepCount, uint32_t distance)
 {
     if (displayState == STEP_STATE) {
@@ -189,7 +202,11 @@ void displayUpdate (int16_t stepCount, uint32_t distance)
 }
 
 
-
+/**
+ * Checks whether the switch_state is in the normal or debug state
+ * and sets the system state to normal and debug mode respectively.
+ * This function is called when the switch has been pushed (switched up).
+ */
 void switchSwitched(bool switch_state) {
     if (switch_state == false) {
         systemState = NORMAL_STATE;
