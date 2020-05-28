@@ -40,6 +40,9 @@ static circBuf_t g_zBuffer;     // Buffer of size BUF_SIZE integers (sample valu
 
 //*****************************************************************************
 // The interrupt handler for the for SysTick interrupt.
+// Makes a call to getAcclData() to get the acceleration data at the time of the
+// sysTick interrupt. It then writes the acceleration data to the circular 
+// buffer.
 //*****************************************************************************
 void
 SysTickIntHandler(void)
@@ -51,7 +54,7 @@ SysTickIntHandler(void)
 }
 
 /*********************************************************
- * initAccl
+ * initialises the acceleration
  *********************************************************/
 void
 initAccl (void)
@@ -115,7 +118,8 @@ initAccl (void)
 }
 
 /********************************************************
- * Function to read accelerometer
+ * Function to read acceleration from the accelerometer
+ * and return the acceleration
  ********************************************************/
 vector3_t
 getAcclData (void)
@@ -134,6 +138,9 @@ getAcclData (void)
     return acceleration;
 }
 
+/********************************************************
+ * Function to convert and return the accelartion from raw to G's
+ ********************************************************/
 vector3_t
 convertAcceleration (vector3_t acceleration_raw)
 {
@@ -144,6 +151,10 @@ convertAcceleration (vector3_t acceleration_raw)
     return acceleration_raw;
 }
 
+/********************************************************
+ * Function to calulate and return the mean acceleration value 
+ * meanVec
+ ********************************************************/
 vector3_t getMeanAccel() {
     uint16_t i;
     int32_t x_sum;
@@ -160,6 +171,7 @@ vector3_t getMeanAccel() {
         z_sum = z_sum + readCircBuf(&g_zBuffer);
     }
 
+    //mean accel calculation
     meanVec.x = (2 * x_sum + BUF_SIZE) / 2 / BUF_SIZE;
     meanVec.y = (2 * y_sum + BUF_SIZE) / 2 / BUF_SIZE;
     meanVec.z = (2 * z_sum + BUF_SIZE) / 2 / BUF_SIZE;
@@ -167,6 +179,11 @@ vector3_t getMeanAccel() {
     return meanVec;
 }
 
+/********************************************************
+ * Function to calculate the acceleration - the offset acceleration
+ * based of the mean acceleration. The acceleration is then converted
+ * to G's and returned.
+ ********************************************************/
 vector3_t calculateAcceleration(vector3_t offSet)
 {
     vector3_t acceleration_raw;
@@ -176,10 +193,14 @@ vector3_t calculateAcceleration(vector3_t offSet)
     acceleration_raw.y -= offSet.y;
     acceleration_raw.z -= offSet.z;
 
-    acceleration_gs = convertAcceleration(acceleration_raw);
+    acceleration_gs = convertAcceleration(acceleration_raw); //convert acceleration from raw to g's
     return acceleration_gs;
 }
 
+/********************************************************
+ * Initialises the circular buffers with the given buffer
+ * size: BUF_SIZE
+ ********************************************************/
 void
 initialiseBuffers(void)
 {

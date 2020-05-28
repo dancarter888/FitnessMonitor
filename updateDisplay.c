@@ -39,15 +39,21 @@ int longPresses = 0;
 
 
 /*********************************************************
- * initDisplay
+ * initDisplay: Initialise the Orbit OLED display
  *********************************************************/
 void
 initDisplay (void)
 {
-    // Initialise the Orbit OLED display
     OLEDInitialise ();
 }
 
+/**
+ * This will be called when the up button is pressed.
+ * If the systemState is in the normal state the function will check
+ * whether the display state is in the distance state, and will toggle
+ * the unistate. If the systemState is in the debug state the steps will be
+ * incremented.
+ */
 void upButtonPressed(void) {
     if (systemState == NORMAL_STATE) {
         if (displayState == DISTANCE_STATE) {
@@ -106,7 +112,11 @@ void resetLongPresses(void) {
     }
 }
 
-
+/**
+ * Checks whether the displayState is currently step or distance state,
+ * and changes it to the inverse of its current state. This function is called
+ * when the left or right button has been pressed.
+ */
 void leftOrRightButtonPressed(void) {
     if (displayState == STEP_STATE) {
         displayState = DISTANCE_STATE;
@@ -115,10 +125,20 @@ void leftOrRightButtonPressed(void) {
     }
 }
 
+/**
+ * Converts the distance from kms to miles
+ */
 uint32_t convertDistance(uint32_t distance) {
     return distance * 0.621;
 }
 
+
+/**
+ * Displays the number of steps is the displayState == STEP_STATE,
+ * and displays the distance if displaystate == DISTANCE_STATE, 
+ * on the orbit OLED display.
+ * Displays distance in terms of kms and miles depending on the unitState.
+ */
 void displayUpdate (int16_t stepCount, uint32_t distance)
 {
     if (displayState == STEP_STATE) {
@@ -176,20 +196,16 @@ void displayUpdate (int16_t stepCount, uint32_t distance)
         usnprintf(text_buffer, sizeof(text_buffer), "%d.%d%d%d %s", thousands, hundreds, tens, ones, unitName);
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 2);
-
-        /*// "Undraw" the previous contents of the line to be updated.
-        OLEDStringDraw ("                ", 0, 3);
-        // Form a new string for the line.  The maximum width specified for the
-        //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "Dist: %d", distance);
-        // Update line on display.
-        OLEDStringDraw (text_buffer, 0, 3);*/
     }
 
 }
 
 
-
+/**
+ * Checks whether the switch_state is in the normal or debug state
+ * and sets the system state to normal and debug mode respectively.
+ * This function is called when the switch has been pushed (switched up).
+ */
 void switchSwitched(bool switch_state) {
     if (switch_state == false) {
         systemState = NORMAL_STATE;

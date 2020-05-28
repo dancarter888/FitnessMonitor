@@ -70,6 +70,10 @@ initClock (void)
     SysTickEnable();
 }
 
+// *******************************************************
+// countSteps: calculcates the norm of vector x, y, z and checks
+// whether a step has occured.
+// A step occurs when norm changes from norm > 150 (sets stepFlag = 1) to norm < 150 (sets stepFlag = 0)
 uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     uint16_t norm = sqrt(pow(acceleration_gs.x, 2) + pow(acceleration_gs.y, 2) + pow(acceleration_gs.z, 2));
     if (stepFlag == 0) {
@@ -89,18 +93,33 @@ uint16_t countSteps(uint16_t stepFlag, vector3_t acceleration_gs) {
     return stepFlag;
 }
 
+// *******************************************************
+// resetSteps: resets StepCount
 void resetSteps(void){
     stepCount = 0;
 }
 
+// *******************************************************
+// incrementSteps: increments stepCount by 100
 void incrementSteps(void) {
     stepCount += 100;
 }
 
+// *******************************************************
+// decrementSteps: decrements stepCount by 100
 void decrementSteps(void) {
     stepCount = ((stepCount - 500) < 0) ? 0 : (stepCount - 500);
 }
 
+// *******************************************************
+// checkButtons: Checks whether each button has been pressed or released,
+// if the left or right buttton has been pressed, a call to leftOrRightButtonPressed()
+// is made. Similarly for the up and down buttons,
+// a function call to upButtonPressed() and downButtonLongPressed() is made respectively.
+// The function also checks whether the switch has been pushed, making a call to
+// switchSwitched(true) setting the switchState to true 
+// and switchSwitched(false) setting the switchState to false when the switched is released.
+// If the down button is released a call to resetLongPresses() is made.
 void checkButtons(void)
 {
     uint8_t butState;
@@ -164,14 +183,13 @@ void checkButtons(void)
 }
 
 /********************************************************
- * main
+ * Main function which initilises the the microcontroller
+ * and runs the round robin task schedular (while loop)
  ********************************************************/
 int
 main (void)
 {
     initClock ();
-    initAccl ();
-    initDisplay ();
     initButtons ();
 
     // Enable interrupts to the processor.
@@ -182,7 +200,7 @@ main (void)
     vector3_t offSet = getAcclData();
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet () / 100);
+        SysCtlDelay (SysCtlClockGet () / 100);  // set delay
         acceleration_gs = calculateAcceleration(offSet);
         stepFlag = countSteps(stepFlag, acceleration_gs);
         // check state of each button and display if a change is detected
@@ -190,6 +208,6 @@ main (void)
 
         checkButtons();
 
-        displayUpdate(stepCount, distance);
+        displayUpdate(stepCount, distance);  // 
     }
 }
