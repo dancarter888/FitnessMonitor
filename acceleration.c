@@ -54,7 +54,7 @@ SysTickIntHandler(void)
 }
 
 /*********************************************************
- * initAccl
+ * initialises the acceleration
  *********************************************************/
 void
 initAccl (void)
@@ -118,7 +118,8 @@ initAccl (void)
 }
 
 /********************************************************
- * Function to read accelerometer
+ * Function to read acceleration from the accelerometer
+ * and return the acceleration
  ********************************************************/
 vector3_t
 getAcclData (void)
