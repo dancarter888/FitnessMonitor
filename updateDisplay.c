@@ -196,14 +196,6 @@ void displayUpdate (int16_t stepCount, uint32_t distance)
         usnprintf(text_buffer, sizeof(text_buffer), "%d.%d%d%d %s", thousands, hundreds, tens, ones, unitName);
         // Update line on display.
         OLEDStringDraw (text_buffer, 0, 2);
-
-        /*// "Undraw" the previous contents of the line to be updated.
-        OLEDStringDraw ("                ", 0, 3);
-        // Form a new string for the line.  The maximum width specified for the
-        //  number field ensures it is displayed right justified.
-        usnprintf(text_buffer, sizeof(text_buffer), "Dist: %d", distance);
-        // Update line on display.
-        OLEDStringDraw (text_buffer, 0, 3);*/
     }
 
 }
