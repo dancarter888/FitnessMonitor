@@ -189,8 +189,6 @@ int
 main (void)
 {
     initClock ();
-    initAccl ();
-    initDisplay ();
     initButtons ();
 
     // Enable interrupts to the processor.
