@@ -183,7 +183,8 @@ void checkButtons(void)
 }
 
 /********************************************************
- * main
+ * Main function which initilises the the microcontroller
+ * and runs the round robin task schedular (while loop)
  ********************************************************/
 int
 main (void)
@@ -199,7 +200,7 @@ main (void)
     vector3_t offSet = getAcclData();
     while (1)
     {
-        SysCtlDelay (SysCtlClockGet () / 100);
+        SysCtlDelay (SysCtlClockGet () / 100);  // set delay
         acceleration_gs = calculateAcceleration(offSet);
         stepFlag = countSteps(stepFlag, acceleration_gs);
         // check state of each button and display if a change is detected
@@ -207,6 +208,6 @@ main (void)
 
         checkButtons();
 
-        displayUpdate(stepCount, distance);
+        displayUpdate(stepCount, distance);  // 
     }
 }
