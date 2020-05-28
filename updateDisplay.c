@@ -47,6 +47,13 @@ initDisplay (void)
     OLEDInitialise ();
 }
 
+/**
+ * This will be called when the up button is pressed.
+ * If the systemState is in the normal state the function will check
+ * whether the display state is in the distance state, and will toggle
+ * the unistate. If the systemState is in the debug state the steps will be
+ * incremented.
+ */
 void upButtonPressed(void) {
     if (systemState == NORMAL_STATE) {
         if (displayState == DISTANCE_STATE) {
