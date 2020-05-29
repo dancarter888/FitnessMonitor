@@ -1,12 +1,18 @@
-/*
- * acceleration.h
- *
- *  Created on: 27/05/2020
- *      Author: Jakob, Daniel, Leo
- */
-
 #ifndef ACCELERATION_H_
 #define ACCELERATION_H_
+
+// *******************************************************
+// acceleration.h
+//
+// Header file for a module for initializing and getting data
+// from the accelerometer on the Tiva board and storing it in
+// circular buffers
+//
+//
+// Authors: Jakob McKinney, Daniel Siemers, Leo Carolan
+// Last modified:  29.05.2020
+//
+// *******************************************************
 
 #define BUF_SIZE 10
 

@@ -1,9 +1,16 @@
-/*
- * stepCounter.c
- *
- *  Created on: 27/05/2020
- *      Author: jakob
- */
+// *******************************************************
+//
+// acceleration.c
+//
+// Module for initializing and getting data from the
+// accelerometer on the Tiva board and storing it in
+// circular buffers
+//
+//
+// Authors: Jakob McKinney, Daniel Siemers, Leo Carolan
+// Last modified:  29.05.2020
+//
+// *******************************************************
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -11,7 +18,7 @@
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_i2c.h"
-#include "driverlib/pin_map.h" //Needed for pin configure
+#include "driverlib/pin_map.h"
 #include "driverlib/systick.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
@@ -84,7 +91,7 @@ initAccl (void)
 
     GPIOPinTypeGPIOInput(ACCL_INT2Port, ACCL_INT2);
 
-    //Initialize ADXL345 Acceleromter
+    //Initialize ADXL345 Accelerometer
 
     // set +-16g, 13 bit resolution, active low interrupts
     toAccl[0] = ACCL_DATA_FORMAT;
