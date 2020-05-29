@@ -1,7 +1,15 @@
-/**********************************************************
- *
- * Milestone1.c
- **********************************************************/
+// *******************************************************
+//
+// fitnessTracker.c
+//
+// fitnessTracker.c is a small, interrupt-driven kernel able
+// to record and display steps taken and distance traveled
+// via a OLED screen on a TIVA board.
+//
+// Authors: Jakob McKinney, Daniel Siemers, Leo Carolan
+// Last modified:  29.05.2020
+//
+// *******************************************************
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -42,8 +50,6 @@ static int32_t distance = 0;
  *      Local prototypes
  *******************************************/
 void initClock (void);
-void initDisplay (void);
-void initAccl (void);
 
 /***********************************************************
  * Initialisation functions: clock, SysTick, PWM
@@ -190,6 +196,8 @@ int
 main (void)
 {
     initClock ();
+    initAccl ();
+    initDisplay ();
     initButtons ();
 
     // Enable interrupts to the processor.
