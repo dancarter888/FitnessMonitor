@@ -1,9 +1,15 @@
-/*
- * updateDisplay.c
- *
- *  Created on: 12/05/2020
- *      Author: Daniel
- */
+// *******************************************************
+//
+// updateDisplay.c
+//
+// A module that handles all the logic for the states that
+// a fitness monitor can be in, and also updating the
+// display according to that state.
+//
+// Authors: Jakob McKinney, Daniel Siemers, Leo Carolan
+// Last modified:  29.05.2020
+//
+// *******************************************************
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -11,7 +17,7 @@
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_i2c.h"
-#include "driverlib/pin_map.h" //Needed for pin configure
+#include "driverlib/pin_map.h"
 #include "driverlib/systick.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"

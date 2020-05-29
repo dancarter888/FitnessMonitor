@@ -1,12 +1,18 @@
 #ifndef UPDATEDISPLAY_H_
 #define UPDATEDISPLAY_H_
 
-/*
- * updateDisplay.h
- *
- *  Created on: 12/05/2020
- *      Author: Daniel
- */
+// *******************************************************
+// acceleration.h
+//
+// Header file for a module that handles all the logic for
+// the states that a fitness monitor can be in, and also
+// updating the display according to that state.
+//
+//
+// Authors: Jakob McKinney, Daniel Siemers, Leo Carolan
+// Last modified:  29.05.2020
+//
+// *******************************************************
 
 #include <stdint.h>
 #include <stdbool.h>
