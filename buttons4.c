@@ -153,6 +153,10 @@ checkButton (uint8_t butName)
 	return NO_CHANGE;
 }
 
+// *******************************************************
+// checkSwitch: Function returns the switch logical state.
+// If the switch state is in the normal state return RELEASED
+// otherwise return PUSHED
 uint8_t checkSwitch (void) {
     if (switch_state == switch_normal) {
         return RELEASED;
