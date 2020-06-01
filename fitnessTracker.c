@@ -199,6 +199,7 @@ main (void)
     initAccl ();
     initDisplay ();
     initButtons ();
+    initialiseBuffers ();
 
     // Enable interrupts to the processor.
     IntMasterEnable();
